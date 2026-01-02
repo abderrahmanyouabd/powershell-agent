@@ -175,13 +175,56 @@ class PowerShellAgent:
         ]
     
     async def execute_tool_call(self, tool_call) -> Dict[str, Any]:
-        """Execute a tool call from the LLM."""
-        function_args = json.loads(tool_call.function.arguments)
-        command = function_args.get("command")
-        stream_output = function_args.get("stream_output", True)
-        
-        result = await self.run_powershell_command(command, stream_output=stream_output)
-        return result
+        """Execute a tool call from the LLM with robust error handling."""
+        try:
+            # Parse function arguments
+            function_args = json.loads(tool_call.function.arguments)
+            
+            # Validate required parameters
+            command = function_args.get("command")
+            if not command:
+                return {
+                    "status": "error",
+                    "command": "",
+                    "output": "",
+                    "error": "No command provided by LLM",
+                    "return_code": -1
+                }
+            
+            # Ensure command is a string
+            if not isinstance(command, str):
+                command = str(command)
+            
+            # Get stream_output with type conversion
+            stream_output = function_args.get("stream_output", True)
+            
+            # Handle string to boolean conversion (LLM sometimes returns "true" instead of true)
+            if isinstance(stream_output, str):
+                stream_output = stream_output.lower() in ('true', '1', 'yes', 'on')
+            elif not isinstance(stream_output, bool):
+                # If it's neither string nor bool, default to True
+                stream_output = True
+            
+            # Execute command
+            result = await self.run_powershell_command(command, stream_output=stream_output)
+            return result
+            
+        except json.JSONDecodeError as e:
+            return {
+                "status": "error",
+                "command": "",
+                "output": "",
+                "error": f"Failed to parse tool call arguments: {str(e)}",
+                "return_code": -1
+            }
+        except Exception as e:
+            return {
+                "status": "error",
+                "command": function_args.get("command", "") if 'function_args' in locals() else "",
+                "output": "",
+                "error": f"Unexpected error in tool execution: {str(e)}",
+                "return_code": -1
+            }
     
     async def run_agent(self, user_prompt: str, max_iterations: int = 10) -> str:
         """
@@ -219,14 +262,28 @@ class PowerShellAgent:
             iteration += 1
             print(f"\n📍 Agent iteration {iteration}/{max_iterations}")
             
-            # Call the LLM
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=messages,
-                tools=tools,
-                tool_choice="auto",
-                temperature=0.3
-            )
+            try:
+                # Call the LLM
+                response = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=messages,
+                    tools=tools,
+                    tool_choice="auto",
+                    temperature=0.3
+                )
+            except Exception as e:
+                error_msg = str(e)
+                print(f"\n❌ Error calling LLM API: {error_msg}\n")
+                
+                # Provide helpful error messages
+                if "authentication" in error_msg.lower() or "api key" in error_msg.lower():
+                    return "❌ API Key Error: Please set a valid GROQ_API_KEY environment variable. Get one at: https://console.groq.com/keys"
+                elif "rate" in error_msg.lower() or "quota" in error_msg.lower():
+                    return "❌ Rate Limit Error: You've hit the API rate limit. Please wait a moment and try again."
+                elif "timeout" in error_msg.lower():
+                    return "❌ Timeout Error: The API request timed out. Please try again."
+                else:
+                    return f"❌ API Error: {error_msg}"
             
             response_message = response.choices[0].message
             messages.append(response_message)
