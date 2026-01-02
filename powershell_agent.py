@@ -149,7 +149,8 @@ class PowerShellAgent:
                         "Execute any PowerShell command including git commands, grep/Select-String, "
                         "file operations, system commands, or any other PowerShell operations. "
                         "Returns the command output with streaming support. "
-                        "Can handle complex commands with pipes, redirections, and multiple statements."
+                        "Can handle complex commands with pipes, redirections, and multiple statements. "
+                        "Output is automatically streamed in real-time."
                     ),
                     "parameters": {
                         "type": "object",
@@ -162,10 +163,6 @@ class PowerShellAgent:
                                     "'Select-String -Path *.py -Pattern \"function\"', "
                                     "'Get-Process | Where-Object {$_.CPU -gt 100}'"
                                 )
-                            },
-                            "stream_output": {
-                                "type": "boolean",
-                                "description": "Whether to stream output in real-time (default: true)"
                             }
                         },
                         "required": ["command"]
@@ -344,7 +341,7 @@ For more information, visit: https://github.com/abderrahmanyouabd/powershell-age
     parser.add_argument(
         '-v', '--version',
         action='version',
-        version='%(prog)s 0.1.0'
+        version='%(prog)s 0.1.1'
     )
     
     parser.add_argument(
