@@ -3,8 +3,10 @@ PowerShell Agentic Tool
 A powerful agentic tool for executing PowerShell commands with streaming output and parallel execution support.
 """
 
+import argparse
 import asyncio
 import json
+import os
 import subprocess
 import sys
 from typing import Optional, List, Dict, Any
@@ -17,7 +19,8 @@ class PowerShellAgent:
     def __init__(self, api_key: Optional[str] = None):
         """Initialize the PowerShell agent with Groq API client."""
         self.client = Groq(api_key=api_key) if api_key else Groq()
-        self.model = "llama-3.3-70b-versatile"
+        # Get model from environment variable or use default
+        self.model = os.getenv("MODEL_PS", "llama-3.3-70b-versatile")
         
     async def run_powershell_command(
         self, 
@@ -256,6 +259,46 @@ class PowerShellAgent:
 
 async def main():
     """Main CLI interface for the PowerShell agent."""
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(
+        description="PowerShell Agentic Tool - Execute PowerShell commands via natural language",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  powershell-agent "Check git status"
+  powershell-agent "Find all Python files and count them"
+  powershell-agent "Search for TODO comments in all files"
+  powershell-agent    # Interactive mode
+
+Environment Variables:
+  GROQ_API_KEY    Your Groq API key (required)
+  MODEL_PS        LLM model to use (default: llama-3.3-70b-versatile)
+
+For more information, visit: https://github.com/abderrahmanyouabd/powershell-agent
+        """
+    )
+    
+    parser.add_argument(
+        'prompt',
+        nargs='*',
+        help='Natural language prompt for what you want to do'
+    )
+    
+    parser.add_argument(
+        '-v', '--version',
+        action='version',
+        version='%(prog)s 0.1.0'
+    )
+    
+    parser.add_argument(
+        '--model',
+        type=str,
+        help='Override MODEL_PS environment variable'
+    )
+    
+    args = parser.parse_args()
+    
+    # Print header
     print("=" * 80)
     print("🤖 PowerShell Agentic Tool - Streaming Command Execution")
     print("=" * 80)
@@ -263,9 +306,15 @@ async def main():
     # Initialize agent
     agent = PowerShellAgent()
     
-    if len(sys.argv) > 1:
+    # Override model if specified
+    if args.model:
+        agent.model = args.model
+        print(f"\n🎯 Using model: {agent.model}")
+    
+    # Get user prompt
+    if args.prompt:
         # Use command line argument as prompt
-        user_prompt = " ".join(sys.argv[1:])
+        user_prompt = " ".join(args.prompt)
     else:
         # Interactive mode
         print("\nEnter your request (what PowerShell command would you like to run?)")

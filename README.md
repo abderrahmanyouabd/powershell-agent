@@ -18,6 +18,23 @@ poetry install
 
 # Set your Groq API key (get one free at console.groq.com)
 $env:GROQ_API_KEY="your-api-key-here"
+
+# Optional: Set custom model (default: llama-3.3-70b-versatile)
+$env:MODEL_PS="llama-3.3-70b-versatile"
+```
+
+## Configuration
+
+### Environment Variables
+
+- **GROQ_API_KEY** (required): Your Groq API key from [console.groq.com/keys](https://console.groq.com/keys)
+- **MODEL_PS** (optional): The LLM model to use. Defaults to `llama-3.3-70b-versatile`
+  - Available models: `llama-3.3-70b-versatile`, `llama-3.1-70b-versatile`, `llama-3.1-8b-instant`, `mixtral-8x7b-32768`, `gemma-7b-it`
+
+Example:
+```powershell
+$env:GROQ_API_KEY="gsk_..."
+$env:MODEL_PS="llama-3.1-8b-instant"  # Use faster model
 ```
 
 ## Usage
