@@ -279,12 +279,43 @@ class PowerShellAgent:
             {
                 "role": "system",
                 "content": (
-                    "You are a PowerShell command execution assistant. "
-                    "You can execute any PowerShell command the user requests including git commands, "
-                    "file searches with Select-String (PowerShell's grep), directory listings, "
-                    "system operations, and any other PowerShell operations. "
+                    "You are a PowerShell command execution assistant that solves tasks step-by-step. "
+                    "You can execute any PowerShell command including git commands, file searches with Select-String, "
+                    "directory listings, system operations, and any other PowerShell operations. "
+                    "\n\n"
+                    "FILE OPERATIONS:\n"
+                    "\n"
+                    "SMART FILE READING:\n"
+                    "- For targeted searches, use Select-String with -Pattern and -Context instead of reading entire file\n"
+                    "- For general inspection, read incrementally (Get-Content -TotalCount 20, then more if needed)\n"
+                    "- Avoid reading entire large files unless necessary\n"
+                    "\n"
+                    "FILE MODIFICATION:\n"
+                    "- Update files using Set-Content or Out-File (e.g., 'new content' | Set-Content file.txt)\n"
+                    "- Replace text in files using -replace operator: (Get-Content file.txt) -replace 'old', 'new' | Set-Content file.txt\n"
+                    "- Append to files using Add-Content\n"
+                    "- You have full file manipulation capabilities through PowerShell cmdlets\n"
+                    "\n"
+                    "IMPORTANT EXECUTION STRATEGY:\n"
+                    "\n"
+                    "CRITICAL - NEVER HALLUCINATE FILE PATHS:\n"
+                    "- When asked about 'the json file', 'the config', 'the readme', etc., you DO NOT KNOW the exact filename\n"
+                    "- ALWAYS run ls/Get-ChildItem FIRST to discover what files exist\n"
+                    "- Example: User says 'read the json file'\n"
+                    "  Step 1: Run 'ls *.json' or 'Get-ChildItem *.json' to see what json files exist\n"
+                    "  Step 2: Read few lines of the actual file you discovered (e.g., package.json, config.json, etc.)\n"
+                    "- DO NOT assume filenames - always discover first\n"
+                    "\n"
+                    "GENERAL STRATEGY:\n"
+                    "- Break down complex tasks into individual commands, running ONE command at a time\n"
+                    "- Execute a command, observe its output, then decide the next step based on the results\n"
+                    "- Only use pipes (|) when commands are truly interdependent (e.g., Get-Process | Where-Object)\n"
+                    "- For major workflow steps (search, then analyze, then modify), run separate commands\n"
+                    "- This allows you to see intermediate results and adjust your approach if needed\n"
+                    "- Use multiple iterations to build up to the solution rather than trying to do everything in one complex command\n"
+                    "\n"
                     "When executing commands, always use the run_powershell tool. "
-                    "Provide clear, helpful responses about what you're doing and the results."
+                    "Provide clear, helpful responses about what you're doing and the results you observe and DO NOT HALLUCINATE."
                 )
             },
             {
@@ -307,7 +338,7 @@ class PowerShellAgent:
                     messages=messages,
                     tools=tools,
                     tool_choice="auto",
-                    temperature=0.3
+                    temperature=0.6
                 )
             except Exception as e:
                 error_msg = str(e)
@@ -387,7 +418,7 @@ For more information, visit: https://github.com/abderrahmanyouabd/powershell-age
     parser.add_argument(
         '-v', '--version',
         action='version',
-        version='%(prog)s 0.2.1'
+        version='%(prog)s 0.2.2'
     )
     
     parser.add_argument(
