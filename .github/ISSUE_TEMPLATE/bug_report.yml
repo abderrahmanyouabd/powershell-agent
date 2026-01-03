@@ -1,0 +1,34 @@
+name: Bug Report
+description: Report a bug
+title: "[Bug]: "
+labels: ["bug"]
+
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: What's the bug?
+      description: Describe what's wrong
+      placeholder: Tell us what happened...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: How to reproduce
+      description: Steps to reproduce the issue (optional)
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. See error
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional info
+      description: Screenshots, logs, environment details, etc.
+    validations:
+      required: false
