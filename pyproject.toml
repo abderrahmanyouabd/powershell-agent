@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "powershell-agent"
-version = "0.1.1"
+version = "0.2.0"
 description = "Agentic tool for executing PowerShell commands with streaming support"
 authors = ["User"]
 readme = "README.md"
