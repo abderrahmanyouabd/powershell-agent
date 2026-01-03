@@ -49,7 +49,7 @@ class PowerShellAgent:
         if self.review_mode:
             print(f"\n� Command to execute: {command}\n")
             while True:
-                confirmation = input("Execute this command? [y/n/e(dit)]: ").strip().lower()
+                confirmation = input("Execute this command? [y/n/e(dit)/q(uit)]: ").strip().lower()
                 if confirmation == 'y':
                     break
                 elif confirmation == 'n':
@@ -61,6 +61,15 @@ class PowerShellAgent:
                         "error": "Execution cancelled by user",
                         "return_code": -1
                     }
+                elif confirmation == 'q':
+                    print("🛑 Quitting agent execution...\n")
+                    return {
+                        "status": "quit",
+                        "command": command,
+                        "output": "",
+                        "error": "Agent execution terminated by user",
+                        "return_code": -1
+                    }
                 elif confirmation == 'e':
                     new_command = input(f"Enter modified command [current: {command}]: ").strip()
                     if new_command:
@@ -69,7 +78,7 @@ class PowerShellAgent:
                     else:
                         print("❌ No command entered. Keeping original command.\n")
                 else:
-                    print("Invalid input. Please enter 'y' (yes), 'n' (no), or 'e' (edit).")
+                    print("Invalid input. Please enter 'y' (yes), 'n' (no), 'e' (edit), or 'q' (quit).")
         
         print(f"\n�🚀 Executing PowerShell command: {command}\n")
         
@@ -327,6 +336,10 @@ class PowerShellAgent:
             
             for tool_call in response_message.tool_calls:
                 result = await self.execute_tool_call(tool_call)
+                
+                # Check if user requested to quit
+                if result.get("status") == "quit":
+                    return "🛑 Agent execution terminated by user request."
                 
                 # Add tool result to messages
                 messages.append({
