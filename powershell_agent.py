@@ -16,11 +16,17 @@ from groq import Groq
 class PowerShellAgent:
     """Agent for executing PowerShell commands with streaming support."""
     
-    def __init__(self, api_key: Optional[str] = None):
-        """Initialize the PowerShell agent with Groq API client."""
+    def __init__(self, api_key: Optional[str] = None, review_mode: bool = False):
+        """Initialize the PowerShell agent with Groq API client.
+        
+        Args:
+            api_key: Groq API key (optional, can use GROQ_API_KEY env var)
+            review_mode: If True, prompt user before executing each command
+        """
         self.client = Groq(api_key=api_key) if api_key else Groq()
         # Get model from environment variable or use default
         self.model = os.getenv("MODEL_PS", "llama-3.3-70b-versatile")
+        self.review_mode = review_mode
         
     async def run_powershell_command(
         self, 
@@ -39,7 +45,33 @@ class PowerShellAgent:
         Returns:
             Dictionary containing status, output, and error information
         """
-        print(f"\n🚀 Executing PowerShell command: {command}\n")
+        # Review mode: Ask for user confirmation before executing
+        if self.review_mode:
+            print(f"\n� Command to execute: {command}\n")
+            while True:
+                confirmation = input("Execute this command? [y/n/e(dit)]: ").strip().lower()
+                if confirmation == 'y':
+                    break
+                elif confirmation == 'n':
+                    print("❌ Command execution cancelled by user.\n")
+                    return {
+                        "status": "cancelled",
+                        "command": command,
+                        "output": "",
+                        "error": "Execution cancelled by user",
+                        "return_code": -1
+                    }
+                elif confirmation == 'e':
+                    new_command = input(f"Enter modified command [current: {command}]: ").strip()
+                    if new_command:
+                        command = new_command
+                        print(f"\n📋 Updated command: {command}\n")
+                    else:
+                        print("❌ No command entered. Keeping original command.\n")
+                else:
+                    print("Invalid input. Please enter 'y' (yes), 'n' (no), or 'e' (edit).")
+        
+        print(f"\n�🚀 Executing PowerShell command: {command}\n")
         
         try:
             # Create subprocess for PowerShell execution
@@ -322,6 +354,7 @@ Examples:
   powershell-agent "Check git status"
   powershell-agent "Find all Python files and count them"
   powershell-agent "Search for TODO comments in all files"
+  powershell-agent --review "Find all TODO comments"  # Review mode
   powershell-agent    # Interactive mode
 
 Environment Variables:
@@ -341,13 +374,19 @@ For more information, visit: https://github.com/abderrahmanyouabd/powershell-age
     parser.add_argument(
         '-v', '--version',
         action='version',
-        version='%(prog)s 0.1.1'
+        version='%(prog)s 0.2.0'
     )
     
     parser.add_argument(
         '--model',
         type=str,
         help='Override MODEL_PS environment variable'
+    )
+    
+    parser.add_argument(
+        '--review',
+        action='store_true',
+        help='Review and approve each command before execution'
     )
     
     args = parser.parse_args()
@@ -358,12 +397,16 @@ For more information, visit: https://github.com/abderrahmanyouabd/powershell-age
     print("=" * 80)
     
     # Initialize agent
-    agent = PowerShellAgent()
+    agent = PowerShellAgent(review_mode=args.review)
     
     # Override model if specified
     if args.model:
         agent.model = args.model
         print(f"\n🎯 Using model: {agent.model}")
+    
+    # Show review mode status
+    if args.review:
+        print(f"\n🔍 Review mode: ENABLED (you will be prompted before each command execution)")
     
     # Get user prompt
     if args.prompt:
