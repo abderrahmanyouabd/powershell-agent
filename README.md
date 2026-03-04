@@ -4,11 +4,11 @@ A powerful agentic tool for executing **any** PowerShell command with streaming 
 
 ## Features
 
-✨ **Single Universal Function** - One `run_powershell` tool that can execute ANY PowerShell command
-🔄 **Streaming Output** - See command progress in real-time as it executes
-⚡ **Parallel Execution** - Run multiple commands simultaneously for maximum efficiency
-🤖 **Agentic Loop** - AI-powered autonomous decision making and command execution
-🎯 **Comprehensive Support** - Git, grep (Select-String), file operations, system commands, and more
+- **Single Universal Function** - One `run_powershell` tool that can execute ANY PowerShell command
+- **Streaming Output** - See command progress in real-time as it executes
+- **Parallel Execution** - Run multiple commands simultaneously for maximum efficiency
+- **Agentic Loop** - AI-powered autonomous decision making and command execution
+- **Comprehensive Support** - Git, grep (Select-String), file operations, system commands, and more
 
 ## Installation
 
@@ -151,10 +151,10 @@ The agent can break down complex requests into multiple PowerShell commands auto
 
 ## Performance
 
-- ⚡ **Async/Await** - Non-blocking command execution
-- 🔄 **Parallel Processing** - Multiple commands run simultaneously
-- 📊 **Streaming** - Real-time output without buffering delays
-- ⏱️ **Timeout Protection** - Commands auto-terminate after 300s (configurable)
+- **Async/Await** - Non-blocking command execution
+- **Parallel Processing** - Multiple commands run simultaneously
+- **Streaming** - Real-time output without buffering delays
+- **Timeout Protection** - Commands auto-terminate after 300s (configurable)
 
 ## Security Notes
 
