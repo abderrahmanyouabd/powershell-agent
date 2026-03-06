@@ -15,7 +15,7 @@ COMMAND_TIMEOUT = int(os.getenv("PS_TIMEOUT", "300"))
 HISTORY_DIR = Path(os.getenv("PS_HISTORY_DIR", Path.home() / ".powershell-agent" / "history"))
 HISTORY_DIR.mkdir(parents=True, exist_ok=True)
 
-VERSION = "0.3.0-dev"
+VERSION = "0.3.0"
 
 # mcp setup
 GITHUB_MCP_URL = "https://mcp.github.com/v1"
