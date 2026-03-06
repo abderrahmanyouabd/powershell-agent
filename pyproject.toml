@@ -1,18 +1,30 @@
 [tool.poetry]
 name = "powershell-agent"
-version = "0.2.2"
-description = "Agentic tool for executing PowerShell commands with streaming support"
-authors = ["User"]
+version = "0.3.0-dev"
+description = "AI-powered agentic PowerShell tool - Groq LLM + GitHub MCP + session history"
+authors = ["Abderrahman YOUABD"]
 readme = "README.md"
 license = "MIT"
-packages = [{include = "powershell_agent.py"}]
+packages = [
+    {include = "powershell_agent"},
+    {include = "cli.py"},
+]
 
 [tool.poetry.dependencies]
 python = "^3.10"
 groq = "^1.0.0"
+openai = "^1.0.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0"
+pytest-asyncio = "^0.23"
 
 [tool.poetry.scripts]
-powershell-agent = "powershell_agent:cli"
+powershell-agent = "cli:cli"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
