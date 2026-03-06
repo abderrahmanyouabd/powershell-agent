@@ -1,179 +1,154 @@
-# PowerShell Agentic Tool
+# powershell-agent
 
-A powerful agentic tool for executing **any** PowerShell command with streaming output and parallel execution support. Built with Poetry and Groq AI.
-
-## Features
-
-- **Single Universal Function** - One `run_powershell` tool that can execute ANY PowerShell command
-- **Streaming Output** - See command progress in real-time as it executes
-- **Parallel Execution** - Run multiple commands simultaneously for maximum efficiency
-- **Agentic Loop** - AI-powered autonomous decision making and command execution
-- **Comprehensive Support** - Git, grep (Select-String), file operations, system commands, and more
-
-## Installation
-
-```powershell
-# Install dependencies
-poetry install
-
-# Set your Groq API key (get one free at console.groq.com)
-$env:GROQ_API_KEY="your-api-key-here"
-
-# Optional: Set custom model (default: llama-3.3-70b-versatile)
-$env:MODEL_PS="llama-3.3-70b-versatile"
-```
-
-## Configuration
-
-### Environment Variables
-
-- **GROQ_API_KEY** (required): Your Groq API key from [console.groq.com/keys](https://console.groq.com/keys)
-- **MODEL_PS** (optional): The LLM model to use. Defaults to `llama-3.3-70b-versatile`
-  - Available models: `llama-3.3-70b-versatile`, `llama-3.1-70b-versatile`, `llama-3.1-8b-instant`, `mixtral-8x7b-32768`, `gemma-7b-it`
-
-Example:
-```powershell
-$env:GROQ_API_KEY="gsk_..."
-$env:MODEL_PS="llama-3.1-8b-instant"  # Use faster model
-```
-
-## Usage
-
-### Interactive Mode
-
-```powershell
-poetry run python powershell_agent.py
-```
-
-Then enter natural language requests like:
-- "Check the git status"
-- "Find all Python files in this directory"
-- "Search for the word 'function' in all .py files"
-- "List all processes using more than 100MB of memory"
-
-### Command Line Mode
-
-```powershell
-poetry run python powershell_agent.py "Search for TODO comments in all Python files"
-```
-
-### Programmatic Usage
-
-```python
-import asyncio
-from powershell_agent import PowerShellAgent
-
-async def example():
-    agent = PowerShellAgent()
-    
-    # Single command with streaming
-    result = await agent.run_powershell_command("git status")
-    print(result)
-    
-    # Multiple commands in parallel
-    commands = [
-        "git status",
-        "git log -n 5 --oneline",
-        "Get-ChildItem -Recurse -Filter *.py"
-    ]
-    results = await agent.run_parallel_commands(commands)
-    
-    # Use the agentic loop
-    response = await agent.run_agent("Find all Python files and count them")
-    print(response)
-
-asyncio.run(example())
-```
-
-## Tool Schema
-
-The agent exposes a single powerful tool:
-
-**`run_powershell`** - Execute any PowerShell command
-
-Parameters:
-- `command` (string, required): The PowerShell command to execute
-- `stream_output` (boolean, optional): Whether to stream output in real-time (default: true)
-
-## Example Commands
-
-### Git Operations
-```
-"Show git status"
-"Get the last 10 commits"
-"Show files changed in the last commit"
-```
-
-### File Searching (grep equivalent)
-```
-"Search for 'function' in all Python files"
-"Find TODO comments in this project"
-"Search for import statements in .py files"
-```
-
-### File Operations
-```
-"List all files in the current directory"
-"Find all files larger than 1MB"
-"Count the number of Python files"
-```
-
-### System Operations
-```
-"Show running processes"
-"Get system information"
-"Check disk space"
-```
-
-### Complex Multi-Command Operations
-The agent can break down complex requests into multiple PowerShell commands automatically!
-
-```
-"Check git status and show me the last 5 commits"
-"Find all Python files and count how many there are"
-"Search for TODO and FIXME comments across the codebase"
-```
-
-## How It Works
-
-1. **User Input** - You provide a natural language request
-2. **AI Planning** - The Groq LLM decides which PowerShell command(s) to run
-3. **Streaming Execution** - Commands execute with real-time output streaming
-4. **Result Processing** - AI interprets the results and responds in natural language
-5. **Iteration** - The agent can make multiple tool calls to complete complex tasks
-
-## Architecture
-
-- **PowerShellAgent** - Main agent class with async execution support
-- **run_powershell_command()** - Execute single commands with streaming
-- **run_parallel_commands()** - Execute multiple commands concurrently
-- **run_agent()** - Agentic loop with LLM orchestration
-
-## Performance
-
-- **Async/Await** - Non-blocking command execution
-- **Parallel Processing** - Multiple commands run simultaneously
-- **Streaming** - Real-time output without buffering delays
-- **Timeout Protection** - Commands auto-terminate after 300s (configurable)
-
-## Security Notes
-
-⚠️ **Important**: This tool executes PowerShell commands on your system. Only use it with:
-- Trusted prompts
-- In controlled environments
-- With appropriate access controls
+A natural language interface for PowerShell, powered by Groq. You describe what you want done, and the agent figures out which commands to run, executes them step by step, and gives you a summary of what happened.
 
 ## Requirements
 
 - Python 3.10+
-- Poetry
-- Windows (for PowerShell)
-- Groq API key (free tier available)
+- Windows (PowerShell)
+- [Groq API key](https://console.groq.com/keys) (free tier works)
+
+## Setup
+
+```powershell
+poetry install
+
+$env:GROQ_API_KEY = "gsk_..."
+```
+
+Optional overrides:
+
+| Variable | Default | Description |
+|---|---|---|
+| `MODEL_PS` | `llama-3.3-70b-versatile` | Groq model to use |
+| `GITHUB_TOKEN` | — | GitHub PAT for `--github` queries |
+| `PS_MAX_ITERATIONS` | `10` | Max agent loop iterations |
+| `PS_TIMEOUT` | `300` | Command timeout in seconds |
+| `PS_HISTORY_DIR` | `~/.powershell-agent/history` | Where sessions are saved |
+
+## Usage
+
+```powershell
+# Direct prompt
+poetry run powershell-agent "find all TODO comments in python files"
+
+# Review each command before it runs
+poetry run powershell-agent --review "create a feature branch for dark mode"
+
+# Interactive
+poetry run powershell-agent
+```
+
+## CLI Flags
+
+| Flag | Description |
+|---|---|
+| `--review` | Approve / skip / edit / quit each command before it runs |
+| `--model <name>` | Override the model for this session |
+| `--iterations <n>` | Max number of agent iterations |
+| `--history` | List past sessions |
+| `--replay <id>` | Print the commands and response from a past session |
+| `--github "<query>"` | Query GitHub via MCP (see below) |
+| `--version` | Print version |
+
+## GitHub MCP
+
+The agent can query GitHub repositories using the [Model Context Protocol](https://modelcontextprotocol.io/) via Groq's Responses API. Set `GITHUB_TOKEN` for private repos; public repos work without it.
+
+**Supported models for `--github`** (Groq Responses API restriction):
+`llama-3.3-70b-versatile`, `llama-3.1-8b-instant`, `qwen/qwen3-32b`, `openai/gpt-oss-120b`, `openai/gpt-oss-20b`
+
+Models like `mixtral` and `gemma` are **not supported** and will return an error. The default model works fine.
+
+```powershell
+$env:GITHUB_TOKEN = "ghp_..."
+
+poetry run powershell-agent --github "summarise the open issues in abderrahmanyouabd/powershell-agent"
+poetry run powershell-agent --github "what changed in the last 5 commits of abderrahmanyouabd/powershell-agent"
+```
+
+## Session History
+
+Every run is saved to disk automatically.
+
+```powershell
+# List sessions
+poetry run powershell-agent --history
+
+# Replay one
+poetry run powershell-agent --replay abc123def456
+```
+
+## Developer Usage
+
+```python
+import asyncio
+from powershell_agent import PowerShellAgent, list_sessions
+
+async def main():
+    agent = PowerShellAgent()
+    response = await agent.run("find all python files and count them")
+    print(response)
+
+    # Past sessions
+    for s in list_sessions(limit=5):
+        print(s["id"], s["prompt_preview"])
+
+asyncio.run(main())
+```
+
+### Adding a custom tool
+
+```python
+from powershell_agent.tools import build_default_registry
+
+registry = build_default_registry()
+
+schema = {
+    "type": "function",
+    "function": {
+        "name": "my_tool",
+        "description": "Does something useful.",
+        "parameters": {
+            "type": "object",
+            "properties": {"input": {"type": "string"}},
+            "required": ["input"],
+        },
+    },
+}
+
+async def my_handler(input: str, **_):
+    return {"status": "success", "output": f"got: {input}", "error": None, "return_code": 0}
+
+registry.register(schema, my_handler)
+agent = PowerShellAgent(registry=registry)
+```
+
+## Running Tests
+
+```powershell
+poetry run pytest tests/ -v
+```
+
+## Architecture
+
+```
+powershell_agent/
+  config.py     # all constants + env-var overrides
+  executor.py   # PowerShell subprocess engine
+  tools.py      # ToolRegistry + built-in tools (run_powershell, write_file)
+  prompt.py     # system prompt builder
+  memory.py     # session persistence
+  agent.py      # agentic loop
+  mcp.py        # GitHub MCP via Groq Responses API
+cli.py          # CLI entry point
+tests/          # pytest suite
+```
+
+## Security
+
+This tool executes PowerShell commands on your machine. Use `--review` mode when you want to approve each command before it runs, especially for unfamiliar prompts.
 
 ## License
 
-MIT
-
-## Contributing
-
-Contributions welcome! This is an efficient, production-ready agentic PowerShell execution tool.
+[MIT](LICENSE)
