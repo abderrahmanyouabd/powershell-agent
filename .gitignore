@@ -142,3 +142,5 @@ MyNewFolder/
 .env.local
 secrets.json
 api_keys.txt
+
+test_env/
