@@ -93,3 +93,15 @@ def load_session(session_id: str) -> Optional[Dict[str, Any]]:
             except Exception:
                 return None
     return None
+
+
+def clear_sessions() -> int:
+    """Delete all saved sessions from the history directory. Returns number of files deleted."""
+    count = 0
+    for f in HISTORY_DIR.glob("*.json"):
+        try:
+            f.unlink()
+            count += 1
+        except Exception:
+            pass
+    return count

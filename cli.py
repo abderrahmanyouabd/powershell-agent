@@ -15,7 +15,7 @@ import asyncio
 import os
 import sys
 
-from powershell_agent import PowerShellAgent, __version__, list_sessions, load_session
+from powershell_agent import PowerShellAgent, __version__, list_sessions, load_session, clear_sessions
 from powershell_agent.mcp import run_with_github_mcp
 from powershell_agent.config import MAX_ITERATIONS
 
@@ -103,6 +103,7 @@ Environment Variables:
     parser.add_argument("--review", action="store_true", help="Review each command before execution")
     parser.add_argument("--iterations", type=int, default=MAX_ITERATIONS, help=f"Max agent iterations (default {MAX_ITERATIONS})")
     parser.add_argument("--history", action="store_true", help="List past sessions")
+    parser.add_argument("--clear-history", action="store_true", help="Delete all past sessions from disk")
     parser.add_argument("--replay", type=str, metavar="SESSION_ID", help="Replay a saved session")
     parser.add_argument("--github", type=str, metavar="QUERY", help="Query GitHub via MCP Responses API")
     parser.add_argument("--no-stream", action="store_true", help="Disable real-time streaming output")
@@ -113,6 +114,11 @@ Environment Variables:
 
     if args.history:
         _print_history()
+        return
+
+    if args.clear_history:
+        count = clear_sessions()
+        print(f"Cleared {count} saved session(s) from history.")
         return
 
     if args.replay:

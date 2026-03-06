@@ -6,7 +6,7 @@ Public API: import from here, not from submodules directly.
 
 from .agent import PowerShellAgent
 from .config import VERSION
-from .memory import list_sessions, load_session, save_session
+from .memory import clear_sessions, list_sessions, load_session, save_session
 from .mcp import run_with_github_mcp
 from .tools import build_default_registry, ToolRegistry
 

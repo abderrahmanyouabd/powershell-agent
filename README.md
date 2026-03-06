@@ -47,7 +47,8 @@ poetry run powershell-agent
 | `--model <name>` | Override the model for this session |
 | `--iterations <n>` | Max number of agent iterations |
 | `--history` | List past sessions |
-| `--replay <id>` | Print the commands and response from a past session |
+| `--clear-history` | Delete all saved sessions |
+| `--replay <id>` | Print the commands from a past session |
 | `--github "<query>"` | Query GitHub via MCP (see below) |
 | `--version` | Print version |
 
