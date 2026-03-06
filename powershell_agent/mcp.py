@@ -39,11 +39,19 @@ def _responses_client() -> openai.OpenAI:
 
 def build_mcp_tools(github_token: Optional[str] = None) -> List[Dict[str, Any]]:
     """Return the MCP tool definition for the GitHub server."""
+    url = os.environ.get("GITHUB_MCP_URL", "")
+    if not url:
+        raise ValueError(
+            "GITHUB_MCP_URL is not set.\n"
+            "Set it to your MCP server URL, e.g.:\n"
+            "  $env:GITHUB_MCP_URL = 'https://server.smithery.ai/@smithery-ai/github/mcp?api_key=YOUR_KEY'\n"
+            "Get a free hosted server at https://smithery.ai or self-host your own."
+        )
     token = github_token or os.environ.get("GITHUB_TOKEN", "")
     tool: Dict[str, Any] = {
         "type": "mcp",
         "server_label": GITHUB_MCP_LABEL,
-        "server_url": GITHUB_MCP_URL,
+        "server_url": url,
         "server_description": GITHUB_MCP_DESCRIPTION,
         "require_approval": "never",
     }

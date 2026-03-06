@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "powershell-agent"
-version = "0.3.0"
+version = "0.3.1"
 description = "AI-powered agentic PowerShell tool - Groq LLM + GitHub MCP + session history"
 authors = ["Abderrahman YOUABD"]
 readme = "README.md"

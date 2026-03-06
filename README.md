@@ -21,6 +21,7 @@ Optional overrides:
 | Variable | Default | Description |
 |---|---|---|
 | `MODEL_PS` | `llama-3.3-70b-versatile` | Groq model to use |
+| `GITHUB_MCP_URL` | — | Your MCP server URL for `--github` queries |
 | `GITHUB_TOKEN` | — | GitHub PAT for `--github` queries |
 | `PS_MAX_ITERATIONS` | `10` | Max agent loop iterations |
 | `PS_TIMEOUT` | `300` | Command timeout in seconds |
@@ -54,7 +55,12 @@ poetry run powershell-agent
 
 ## GitHub MCP
 
-The agent can query GitHub repositories using the [Model Context Protocol](https://modelcontextprotocol.io/) via Groq's Responses API. Set `GITHUB_TOKEN` for private repos; public repos work without it.
+The agent can query GitHub repositories using the [Model Context Protocol](https://modelcontextprotocol.io/) via Groq's Responses API. 
+
+```text
+GITHUB_MCP_URL=https://your-mcp-server.com/mcp    # any MCP server URL you want
+GITHUB_TOKEN=ghp_...                               # your GitHub PAT (optional, for private repos)
+```
 
 **Supported models for `--github`** (Groq Responses API restriction):
 `llama-3.3-70b-versatile`, `llama-3.1-8b-instant`, `qwen/qwen3-32b`, `openai/gpt-oss-120b`, `openai/gpt-oss-20b`
