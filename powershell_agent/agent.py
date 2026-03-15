@@ -18,6 +18,8 @@ from .tools import ToolRegistry, build_default_registry
 
 _MAX_TOOL_RETRIES = 2
 
+DESTRUCTIVE_TOOLS = {"copy_file", "move_file", "delete_item", "set_registry"}
+
 
 class PowerShellAgent:
     """
@@ -78,6 +80,14 @@ class PowerShellAgent:
 
         name = tool_call.function.name
         command_str = args.get("command") or args.get("path") or name
+
+        if name in DESTRUCTIVE_TOOLS and not self.review_mode:
+            return {
+                "status": "error",
+                "error": f"Destructive tool '{name}' requires --review mode for safety. Run with --review flag.",
+                "output": "",
+                "return_code": -1,
+            }, False
 
         if self.review_mode:
             final_cmd, quit_now = self._review(command_str)

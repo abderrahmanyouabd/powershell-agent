@@ -6,8 +6,7 @@ touching the agent loop.  Sections are clearly named so a tech lead
 can read the prompt like a document.
 """
 
-import os
-import platform
+
 from pathlib import Path
 
 
@@ -65,6 +64,52 @@ EXPLAIN vs EXECUTE
 - "list all files" → execute Get-ChildItem.
 - When in doubt: questions → answer; instructions → execute."""
 
+    _POWERSHELL_BEST_PRACTICES = """
+POWERSHELL BEST PRACTICES
+─────────────────────────
+PIPELINE USAGE:
+- Chain cmdlets: Get-ChildItem | Where-Object {$_.Extension -eq '.ps1'} | Sort-Object Name
+- Use pipeline for filtering, sorting, transformation
+- Avoid storing intermediate results in variables when pipeline works
+
+ERROR HANDLING:
+- Use -ErrorAction Stop for critical operations
+- Wrap risky commands in try/catch blocks
+- Check $LASTEXITCODE after external commands
+
+OBJECT OUTPUT:
+- PowerShell returns objects, not just text
+- Use Select-Object to pick properties: Get-Process | Select-Object Name, CPU, WS
+- Use Format-* cmdlets only for display, not data
+
+SAFE OPERATIONS:
+- Use -WhatIf for destructive operations (Remove-Item, etc.)
+- Verify paths with Test-Path before operations
+- Use -Confirm for operations that need user confirmation"""
+
+    _TOOL_GUIDANCE = """
+AVAILABLE TOOLS
+───────────────
+USE THESE SPECIALIZED TOOLS (preferred over raw PowerShell):
+- read_file(path, start_line, end_line, limit): Read files with line numbers
+- edit_file(path, operation, start_line, end_line, new_content): Edit with backup (.bak)
+- list_files(path, pattern, recursive): List files/dirs with filtering
+- search_content(path, pattern, case_sensitive, file_pattern): Search in files
+- write_file(path, content, append): Write files safely
+- run_powershell(command): Execute any PowerShell command
+
+DESTRUCTIVE TOOLS (require --review mode):
+- copy_file, move_file, delete_item: File operations that need approval"""
+
+    _SAFETY = """
+SAFETY GUIDELINES
+─────────────────
+- NEVER delete files without confirming with user (use --review mode)
+- ALWAYS create backups before editing (edit_file creates .bak automatically)
+- For destructive operations: use --review flag to let user approve each step
+- When in doubt: ask for confirmation before proceeding
+- Never execute commands that could harm the system (format, reg delete, etc.)"""
+
     #  Public API
 
     def build(self, cwd: str | None = None) -> str:
@@ -77,6 +122,9 @@ EXPLAIN vs EXECUTE
             self._NO_HALLUCINATE,
             self._STRATEGY,
             self._EXPLAIN_VS_EXECUTE,
+            self._POWERSHELL_BEST_PRACTICES,
+            self._TOOL_GUIDANCE,
+            self._SAFETY,
             "\nAlways use the available tools. DO NOT hallucinate. Be concise in explanations.",
         ]
         return "\n".join(parts)
