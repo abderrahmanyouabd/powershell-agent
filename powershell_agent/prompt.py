@@ -110,6 +110,24 @@ SAFETY GUIDELINES
 - When in doubt: ask for confirmation before proceeding
 - Never execute commands that could harm the system (format, reg delete, etc.)"""
 
+    _KNOW_WHEN_TO_STOP = """
+KNOW WHEN TO STOP
+─────────────────
+IMPORTANT: After executing a tool and getting the result, evaluate if the task is DONE:
+- If the tool output ANSWERS the user's question → respond with a final summary (NO more tools)
+- If the user asked for info (status, list, find) → once you have the info, STOP and summarize
+- Only continue if you need MORE info to complete the task
+- If the output shows what was requested → return the final response, don't repeat the same command!
+
+Examples of WHEN TO STOP:
+- User: "check git status" → git status returns output → summarize the state → DONE
+- User: "list files" → Get-ChildItem returns files → list them → DONE
+- User: "find X" → Select-String finds matches → show results → DONE
+
+Examples of WHEN TO CONTINUE:
+- User: "find files AND count them" → need 2 steps: find, then count
+- User: "check disk space, if >90% alert me" → need to check, then decide"""
+
     #  Public API
 
     def build(self, cwd: str | None = None) -> str:
@@ -125,6 +143,7 @@ SAFETY GUIDELINES
             self._POWERSHELL_BEST_PRACTICES,
             self._TOOL_GUIDANCE,
             self._SAFETY,
+            self._KNOW_WHEN_TO_STOP,
             "\nAlways use the available tools. DO NOT hallucinate. Be concise in explanations.",
         ]
         return "\n".join(parts)

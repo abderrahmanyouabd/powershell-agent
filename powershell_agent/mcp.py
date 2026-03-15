@@ -90,11 +90,11 @@ def run_with_github_mcp(
     response = client.responses.create(
         model=model,
         input=[{"type": "message", "role": "user", "content": user_prompt}],
-        tools=tools,  # type: ignore[arg-type]
+        tools=tools,
         stream=False,
     )
 
-    for item in response.output:  # type: ignore[attr-defined]
+    for item in response.output:
         if getattr(item, "type", None) == "message":
             for chunk in item.content:
                 if getattr(chunk, "type", None) == "output_text":
