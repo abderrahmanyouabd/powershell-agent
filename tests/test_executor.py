@@ -50,3 +50,11 @@ async def test_result_keys():
     result = await run_powershell("Write-Output 'ok'", stream_output=False)
     for key in ("status", "command", "output", "error", "return_code"):
         assert key in result, f"Missing key: {key}"
+
+
+def test_destructive_tools_defined():
+    """Test that destructive tools are properly defined for review enforcement."""
+    from powershell_agent.agent import DESTRUCTIVE_TOOLS
+    assert "copy_file" in DESTRUCTIVE_TOOLS
+    assert "move_file" in DESTRUCTIVE_TOOLS
+    assert "delete_item" in DESTRUCTIVE_TOOLS
